@@ -43,39 +43,35 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(
-        options =>
-        {
-            options.SwaggerDoc("V1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Opossum Temp", Description = "exemple de jwt avec un opossum" });
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "JwtSample For TechniBestDev", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer", //!!!!!LOWERCASE!!!!!
+        BearerFormat = "JWT", //!!!UPPERCASE!!!!
+        In = ParameterLocation.Header, //Dans le Header Http
 
-            //Ajouter la possibilité du jwt
-            options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                In = ParameterLocation.Header,
-                Description = "Vous devez mettre un Token ici",
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                BearerFormat = "JWT",
-                Scheme = JwtBearerDefaults.AuthenticationScheme
-            });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+        Description = "JWT Bearer : \r\n Enter  Token"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type= ReferenceType.SecurityScheme,
-                        Id=JwtBearerDefaults.AuthenticationScheme
+                      {
+                          new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = JwtBearerDefaults.AuthenticationScheme
+                                }
+                            },
+                            new string[] {}
                     }
-                },
-                new string[] { }
-                }
-            });
-         
-        }
-    );
+                });
+});
+        
 
 var app = builder.Build();
 
