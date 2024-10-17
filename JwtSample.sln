@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtSample", "JwtSample\JwtSample.csproj", "{1CF2CB45-344C-40D4-8565-D7DF23B5D02B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JwtSample", "JwtSample\JwtSample.csproj", "{1CF2CB45-344C-40D4-8565-D7DF23B5D02B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwoFASample", "TwoFASample\TwoFASample.csproj", "{681C4E27-ABCF-4911-A205-F1D212EE397F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{1CF2CB45-344C-40D4-8565-D7DF23B5D02B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CF2CB45-344C-40D4-8565-D7DF23B5D02B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CF2CB45-344C-40D4-8565-D7DF23B5D02B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681C4E27-ABCF-4911-A205-F1D212EE397F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{681C4E27-ABCF-4911-A205-F1D212EE397F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{681C4E27-ABCF-4911-A205-F1D212EE397F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{681C4E27-ABCF-4911-A205-F1D212EE397F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

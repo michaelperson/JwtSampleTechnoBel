@@ -1,0 +1,6 @@
+@TwoFASample_HostAddress = http://localhost:5086
+
+GET {{TwoFASample_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

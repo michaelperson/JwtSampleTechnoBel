@@ -1,10 +1,13 @@
-﻿using JwtSample.Models;
+﻿using JwtSample.Infra;
+using JwtSample.Models;
+using JwtSample.Services.Interface;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace JwtSample.Controllers
@@ -14,9 +17,11 @@ namespace JwtSample.Controllers
     public class AuthController : ControllerBase
     {
         private readonly JwtOptions _jwtOption;
-        public AuthController(JwtOptions jwtoption)
+        private readonly IUserService _userService;
+        public AuthController(JwtOptions jwtoption, IUserService userService)
         {
             _jwtOption= jwtoption;
+            _userService=userService;
         }
 
 
@@ -31,37 +36,56 @@ namespace JwtSample.Controllers
             { 
                 return new BadRequestObjectResult(ModelState); 
             } 
-            
-            if((lm.NickName != "Admin" && lm.NickName != "Mike") || lm.Password!="Test1234=")
+            User? u = _userService.Authenticate(lm.NickName, lm.Password);
+            if (u==null)
             {
                 return new BadRequestObjectResult(lm);
             }
+             
 
-            //Générer le token et le renvoyer
-            //1- string key vers byte key
-            byte[] skey = Encoding.UTF8.GetBytes(_jwtOption.SigningKey);
-            SymmetricSecurityKey laCle = new SymmetricSecurityKey(skey);
+            string leTokenArenvoyer = JwtManager.GenerateToken(_jwtOption,  u);
 
-            //2- Quleque claims
-            Claim infoNom = new Claim(ClaimTypes.Name, "Mike");
-            Claim Rols = new Claim(ClaimTypes.Role, lm.NickName=="Mike"?"Boulet":"Admin");
 
-            List<Claim> mesClaims = new List<Claim>();
-            mesClaims.Add(infoNom);
-            mesClaims.Add(Rols);
+            return Ok(new JwtResponse {   Access_Token=leTokenArenvoyer, Refresh_Token=u.RefreshToken  });
 
-            JwtSecurityToken Token = new JwtSecurityToken(
+        }
 
-                 issuer: _jwtOption.Issuer,
-                 audience: _jwtOption.Audience,
-                 claims: mesClaims,
-                 expires: DateTime.Now.AddSeconds(_jwtOption.Expiration),
-                 signingCredentials: new SigningCredentials(laCle, SecurityAlgorithms.HmacSha256)
+        [HttpPost("refresh")]
+        public IActionResult Refresh(JwtResponse tokenResponse)
+        {
+            List<Claim> mesClaims = null;
+            //Récupération des claims du user (idéalement dans une db car normalement l'user n'existe plus si j'ai besoin 
+            // de faire un refresh
+            if (User !=null)
+            {
+                  mesClaims = User.Claims.ToList();
+                 
+            }
+            else
+            {
+                //rechercher les rôles dans
+            }
 
-             );
-            string leTokenArenvoyer = new JwtSecurityTokenHandler().WriteToken(Token);
-            return Ok(new { expiration= _jwtOption.Expiration, access_token=leTokenArenvoyer });
+            //Vérification si le token correspond
+            if (_userService.Checkrefresh(tokenResponse.Access_Token, tokenResponse.Refresh_Token))
+            {
+                string newAccessToken = JwtManager.GenerateAccessTokenFromRefreshToken(tokenResponse.Refresh_Token, _jwtOption, mesClaims);
 
+                JwtResponse response = new JwtResponse
+                {
+                    Access_Token = newAccessToken,
+                    Refresh_Token = JwtManager.GenerateRefreshToken() // Return the same refresh token
+                };
+                //On doit ici resauvegarder en db les infos (ici ce n'est pas fait car pas de db mais une liste statique)
+
+                return Ok(response);
+            }
+            else
+            {
+                return BadRequest();
+            }
+             
+           
         }
     }
 }
